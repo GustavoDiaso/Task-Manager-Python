@@ -25,7 +25,11 @@ class Main_Window(QtWidgets.QWidget):
             int(self.screen_geometry.height() / 2 - self.left_bar.height_ / 2),
         )
 
+        self.tasks_window = MyTasksWindow(parent=self, main_window_=self)
 
+
+
+# ------------------------------------------------------------------------------------------
 class LeftSideBarMenuWidget(QtWidgets.QLabel):
     def __init__(self, parent: Main_Window):
         super(LeftSideBarMenuWidget, self).__init__(parent=parent)
@@ -93,6 +97,42 @@ class LeftSideBarMenuWidget(QtWidgets.QLabel):
             elif btn == button and btn.highlighted == False:
                 btn.highlighted = True
                 btn.setStyleSheet(css.btn_tasks_highlighted)
+
+# ------------------------------------------------------------------------------------------
+
+class MyTasksLayout(QtWidgets.QGridLayout):
+    def __init__(self, parent):
+        super(MyTasksLayout, self).__init__(parent=parent)
+        # setting the default configurations
+        self.setSpacing(0),
+        self.setContentsMargins(0, 0, 0, 0)
+
+        self.task_collection: list[QtWidgets.QLabel] = []
+
+class MyTasksWindow(QtWidgets.QWidget):
+    def __init__(self, parent, main_window_: Main_Window):
+        super(MyTasksWindow, self).__init__(parent=parent)
+
+
+        self.header = QtWidgets.QLabel(parent=self)
+        self.header.setStyleSheet(css.my_task_window_header)
+        self.header.setMinimumSize(main_window_.screen_geometry.width()-520, 90)
+        self.header.move(470, 50)
+
+        self.btn_addtask = QtWidgets.QPushButton("+  Nova Tarefa", parent=self.header)
+        self.btn_addtask.setMinimumSize(140, 50)
+        self.btn_addtask.setStyleSheet(css.btn_add_task)
+        self.btn_addtask.move(
+            int(self.header.width() -self.btn_addtask.width() - 30),
+            int(self.header.height()/2 - self.btn_addtask.height()/2)
+        )
+        self.btn_addtask.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+
+
+
+    @QtCore.Slot()
+    def printando(self):
+        print('ola')
 
 
 class GridTarefas(QtWidgets.QGridLayout):
