@@ -27,6 +27,7 @@ class Main_Window(QtWidgets.QWidget):
 
         self.tasks_window = MyTasksWindow(parent=self, main_window_=self)
 
+        self.left_bar.raise_()
 
 
 # ------------------------------------------------------------------------------------------
@@ -98,7 +99,9 @@ class LeftSideBarMenuWidget(QtWidgets.QLabel):
                 btn.highlighted = True
                 btn.setStyleSheet(css.btn_tasks_highlighted)
 
+
 # ------------------------------------------------------------------------------------------
+
 
 class MyTasksLayout(QtWidgets.QGridLayout):
     def __init__(self, parent):
@@ -109,35 +112,55 @@ class MyTasksLayout(QtWidgets.QGridLayout):
 
         self.task_collection: list[QtWidgets.QLabel] = []
 
+
 class MyTasksWindow(QtWidgets.QWidget):
     def __init__(self, parent, main_window_: Main_Window):
         super(MyTasksWindow, self).__init__(parent=parent)
 
-
         self.header = QtWidgets.QLabel(parent=self)
         self.header.setStyleSheet(css.my_task_window_header)
-        self.header.setMinimumSize(main_window_.screen_geometry.width()-520, 90)
-        self.header.move(470, 50)
+        self.header.setMinimumSize(main_window_.screen_geometry.width() - 365, 90)
+        self.header.move(330, 50)
 
         self.btn_addtask = QtWidgets.QPushButton("+  Nova Tarefa", parent=self.header)
         self.btn_addtask.setMinimumSize(140, 50)
         self.btn_addtask.setStyleSheet(css.btn_add_task)
         self.btn_addtask.move(
-            int(self.header.width() -self.btn_addtask.width() - 30),
-            int(self.header.height()/2 - self.btn_addtask.height()/2)
+            int(self.header.width() - self.btn_addtask.width() - 30),
+            int(self.header.height() / 2 - self.btn_addtask.height() / 2),
         )
         self.btn_addtask.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
 
+        self.popup_addtask = PopUpAddTask(self, main_window_)
+        self.popup_addtask.hide()
+        self.btn_addtask.clicked.connect(
+            lambda: self.popup_addtask.toggle_popup(main_window_)
+        )
 
+
+class PopUpAddTask(QtWidgets.QLabel):
+    def __init__(self, parent: MyTasksWindow, main_window_: Main_Window):
+        super(PopUpAddTask, self).__init__(parent=parent)
+        self.setStyleSheet(css.popup_addtask)
+        self.setMinimumSize(500, 500)
+
+        self.parent_widget: MyTasksWindow = parent
+
+        x = int(main_window_.screen_geometry.width() / 2 - (500 / 2))
+        y = int(main_window_.screen_geometry.height() / 2 - (500 / 2))
+        self.move(x, y)
+
+        self.btn_close_popup = QtWidgets.QPushButton("Close", parent=self)
+        self.btn_close_popup.setMinimumSize(100, 100)
+        self.btn_close_popup.setStyleSheet(css.btn_close_popup)
+        self.btn_close_popup.clicked.connect(self.hide)
 
     @QtCore.Slot()
-    def printando(self):
-        print('ola')
-
-
-class GridTarefas(QtWidgets.QGridLayout):
-    def __int__(self, parent):
-        super(GridTarefas, self).__init__(parent=parent)
+    def toggle_popup(self, main_window_: Main_Window):
+        if self.isVisible() == False:
+            self.show()
+            self.parent_widget.adjustSize()
+            self.parent_widget.update()
 
 
 if __name__ == "__main__":

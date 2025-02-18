@@ -70,3 +70,11 @@ font-family: Calibri;
 font-weight: bold;
 }
 """
+
+popup_addtask = """
+background-color: blue;
+"""
+
+btn_close_popup = """
+
+"""
