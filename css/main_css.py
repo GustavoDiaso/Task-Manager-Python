@@ -13,7 +13,6 @@ background-color: blue;
 """
 
 btn_tasks = """
-QPushButton {
 background-color: white;
 height: 80px;
 border-top: 2px solid #efefef;
@@ -24,11 +23,9 @@ font-size: 22px;
 font-weight: bold;
 text-align: left;
 padding-left: 90px;
-}
 """
 
 btn_tasks_highlighted = """
-QPushButton {
 background-color: #e7ffc5;
 height: 80px;
 border-top: 2px solid #efefef;
@@ -40,27 +37,18 @@ font-size: 23px;
 font-weight: bold;
 text-align: left;
 padding-left: 80px;
-}
 """
 
 grid_tarefas = """
 background-color:blue;
 """
 
-# my_tasks_window = """
-# min-width: 500px;
-# min-height: 500px;
-# background-color: grey
-# """
 my_task_window_header = """
-QLabel {
 background-color: white;
 border-radius: 20px
-}
 """
 
 btn_add_task = """
-QPushButton{
 background-color: #b5ff66;
 border: 1px solid #161616;
 border-radius: 25px;
@@ -68,13 +56,45 @@ color: #595959;
 font-size: 15px;
 font-family: Calibri;
 font-weight: bold;
-}
 """
 
 popup_addtask = """
-background-color: blue;
+background-color: white;
+border-radius: 20px;
+border: 3px solid #eaeaea;
+"""
+
+
+new_task_header = """
+border: none;
+color: #595959;
+font-size: 30px;
+font-weight: bold;
+font-family: Calibri;
 """
 
 btn_close_popup = """
+background-color: #ff4646;
+border-radius: 10px;
+border: none;
+font-weight: bold;
+"""
 
+task_creation_input = """
+background-color: #eaeaea;
+border: none;
+border-radius: 5px;
+padding-left: 10px;
+color: #666666 ;
+font-weight: bold;
+font-size: 15px;
+font-family: Calibri;
+"""
+
+lbl_task = """
+border: none;
+color: #666666 ;
+font-weight: bold;
+font-size: 16px;
+font-family: Calibri;
 """

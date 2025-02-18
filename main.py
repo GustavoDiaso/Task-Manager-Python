@@ -150,10 +150,26 @@ class PopUpAddTask(QtWidgets.QLabel):
         y = int(main_window_.screen_geometry.height() / 2 - (500 / 2))
         self.move(x, y)
 
-        self.btn_close_popup = QtWidgets.QPushButton("Close", parent=self)
-        self.btn_close_popup.setMinimumSize(100, 100)
+        self.new_task_header = QtWidgets.QLabel("New Task", parent=self)
+        self.new_task_header.setStyleSheet(css.new_task_header)
+        self.new_task_header.move(500 // 2 - self.new_task_header.width() // 2, 50)
+
+        self.btn_close_popup = QtWidgets.QPushButton("X", parent=self)
+        self.btn_close_popup.setMinimumSize(50, 30)
+        self.btn_close_popup.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
         self.btn_close_popup.setStyleSheet(css.btn_close_popup)
         self.btn_close_popup.clicked.connect(self.hide)
+        self.btn_close_popup.move(435, 15)
+
+        self.input_task_name = QtWidgets.QLineEdit(parent=self)
+        self.input_task_name.setStyleSheet(css.task_creation_input)
+        self.input_task_name.setMinimumSize(400, 30)
+        self.input_task_name.move(250 - self.input_task_name.width() // 2, 150)
+        self.input_task_name.setMaxLength(60)
+
+        self.lbl_task_name = QtWidgets.QLabel("Task name:", parent=self)
+        self.lbl_task_name.setStyleSheet(css.lbl_task)
+        self.lbl_task_name.move(250 - self.input_task_name.width() // 2, 125)
 
     @QtCore.Slot()
     def toggle_popup(self, main_window_: Main_Window):
