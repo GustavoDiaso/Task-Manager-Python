@@ -95,6 +95,6 @@ lbl_task = """
 border: none;
 color: #666666 ;
 font-weight: bold;
-font-size: 16px;
+font-size: 18px;
 font-family: Calibri;
 """

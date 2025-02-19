@@ -39,7 +39,7 @@ class LeftSideBarMenuWidget(QtWidgets.QLabel):
 
         # Creating the buttons from de leftsidebar
 
-        self.btn_my_tasks = QtWidgets.QPushButton("Minhas tarefas")
+        self.btn_my_tasks = QtWidgets.QPushButton("My Tasks")
         self.btn_my_tasks.setStyleSheet(css.btn_tasks)
         self.btn_my_tasks.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
         self.btn_my_tasks.clicked.connect(
@@ -53,7 +53,7 @@ class LeftSideBarMenuWidget(QtWidgets.QLabel):
             lambda: self.highlight_button(self.btn_dashboard)
         )
 
-        self.btn_notification = QtWidgets.QPushButton("Notificações")
+        self.btn_notification = QtWidgets.QPushButton("Notifications")
         self.btn_notification.setStyleSheet(css.btn_tasks)
         self.btn_notification.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
         self.btn_notification.clicked.connect(
@@ -119,10 +119,20 @@ class MyTasksWindow(QtWidgets.QWidget):
 
         self.header = QtWidgets.QLabel(parent=self)
         self.header.setStyleSheet(css.my_task_window_header)
-        self.header.setMinimumSize(main_window_.screen_geometry.width() - 365, 90)
-        self.header.move(330, 50)
+        self.header.setMinimumSize(
+            (
+                main_window_.screen_geometry.width() -
+                int(main_window_.screen_geometry.width() / 50 + main_window_.left_bar.width() + 40) -
+                40
+             ),
+            90
+        )
+        self.header.move(
+            int(main_window_.screen_geometry.width() / 50 + main_window_.left_bar.width() + 40),
+            50
+        )
 
-        self.btn_addtask = QtWidgets.QPushButton("+  Nova Tarefa", parent=self.header)
+        self.btn_addtask = QtWidgets.QPushButton("+  New Task", parent=self.header)
         self.btn_addtask.setMinimumSize(140, 50)
         self.btn_addtask.setStyleSheet(css.btn_add_task)
         self.btn_addtask.move(
@@ -161,15 +171,35 @@ class PopUpAddTask(QtWidgets.QLabel):
         self.btn_close_popup.clicked.connect(self.hide)
         self.btn_close_popup.move(435, 15)
 
-        self.input_task_name = QtWidgets.QLineEdit(parent=self)
-        self.input_task_name.setStyleSheet(css.task_creation_input)
-        self.input_task_name.setMinimumSize(400, 30)
-        self.input_task_name.move(250 - self.input_task_name.width() // 2, 150)
-        self.input_task_name.setMaxLength(60)
+        self.input_task_description = QtWidgets.QLineEdit(parent=self)
+        self.input_task_description.setStyleSheet(css.task_creation_input)
+        self.input_task_description.setMinimumSize(400, 40)
+        self.input_task_description.move(250 - self.input_task_description.width() // 2, 150)
+        self.input_task_description.setMaxLength(60)
 
-        self.lbl_task_name = QtWidgets.QLabel("Task name:", parent=self)
+        self.lbl_task_name = QtWidgets.QLabel("Task description:", parent=self)
         self.lbl_task_name.setStyleSheet(css.lbl_task)
-        self.lbl_task_name.move(250 - self.input_task_name.width() // 2, 125)
+        self.lbl_task_name.move(250 - self.input_task_description.width() // 2, 120)
+
+        self.input_task_date = QtWidgets.QDateEdit(parent=self)
+        self.input_task_date.setStyleSheet(css.task_creation_input)
+        self.input_task_date.setMinimumSize(400, 40)
+        self.input_task_date.move(250 - self.input_task_date.width() // 2, 240)
+        self.input_task_date.setDate(QtCore.QDate.currentDate())
+
+        self.lbl_task_date = QtWidgets.QLabel("Task date:", parent=self)
+        self.lbl_task_date.setStyleSheet(css.lbl_task)
+        self.lbl_task_date.move(250 - self.input_task_date.width() // 2, 210)
+
+        self.input_task_urgency = QtWidgets.QComboBox(parent=self)
+        self.input_task_urgency.addItems(['Low', 'Medium', 'High'])
+        self.input_task_urgency.setStyleSheet(css.task_creation_input)
+        self.input_task_urgency.setMinimumSize(400, 40)
+        self.input_task_urgency.move(250 - self.input_task_urgency.width() // 2, 335)
+
+        self.lbl_task_urgency = QtWidgets.QLabel("Task urgency:", parent=self)
+        self.lbl_task_urgency.setStyleSheet(css.lbl_task)
+        self.lbl_task_urgency.move(250 - self.input_task_urgency.width() // 2, 305)
 
     @QtCore.Slot()
     def toggle_popup(self, main_window_: Main_Window):
