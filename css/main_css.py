@@ -50,12 +50,12 @@ border-radius: 20px
 
 btn_add_task = """
 background-color: #b5ff66;
-border: 1px solid #161616;
 border-radius: 25px;
 color: #595959;
 font-size: 15px;
 font-family: Calibri;
 font-weight: bold;
+border: none;
 """
 
 popup_addtask = """

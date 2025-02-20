@@ -1,11 +1,9 @@
-import shutil
-
+import os.path
+from pathlib import Path
 from PySide6 import QtWidgets, QtCore, QtGui
 from css import main_css as css
-from functools import partial
 import sys
-
-from css.main_css import grid_tarefas
+import json
 
 
 class Main_Window(QtWidgets.QWidget):
@@ -16,14 +14,8 @@ class Main_Window(QtWidgets.QWidget):
         self.screen_geometry = screen.availableGeometry()
         self.setMinimumSize(self.screen_geometry.width(), self.screen_geometry.height())
 
-        self.left_bar = LeftSideBarMenuWidget(self)
-        self.left_bar.height_ = self.screen_geometry.height() - 100
-        self.left_bar.width_ = int(self.screen_geometry.width() / 5)
-        self.left_bar.setMinimumSize(self.left_bar.width_, self.left_bar.height_)
-        self.left_bar.move(
-            int(self.screen_geometry.width() / 50),
-            int(self.screen_geometry.height() / 2 - self.left_bar.height_ / 2),
-        )
+        self.left_bar = LeftSideBar(parent=self, main_window_=self)
+        self.left_bar.btn_my_tasks.click()
 
         self.tasks_window = MyTasksWindow(parent=self, main_window_=self)
 
@@ -31,11 +23,17 @@ class Main_Window(QtWidgets.QWidget):
 
 
 # ------------------------------------------------------------------------------------------
-class LeftSideBarMenuWidget(QtWidgets.QLabel):
-    def __init__(self, parent: Main_Window):
-        super(LeftSideBarMenuWidget, self).__init__(parent=parent)
+class LeftSideBar(QtWidgets.QLabel):
+    def __init__(self, parent, main_window_: Main_Window):
+        super(LeftSideBar, self).__init__(parent=parent)
         self.setStyleSheet(css.left_side_bar)
-        self.setFixedSize(200, 300)
+        height_ = main_window_.screen_geometry.height() - 100
+        width_ = int(main_window_.screen_geometry.width() / 5)
+        self.setMinimumSize(width_, height_)
+        self.move(
+            int(main_window_.screen_geometry.width() / 50),
+            int(main_window_.screen_geometry.height() / 2 - height_ / 2),
+        )
 
         # Creating the buttons from de leftsidebar
 
@@ -45,6 +43,9 @@ class LeftSideBarMenuWidget(QtWidgets.QLabel):
         self.btn_my_tasks.clicked.connect(
             lambda: self.highlight_button(self.btn_my_tasks)
         )
+        self.btn_my_tasks.clicked.connect(
+            lambda: self.toggleSecondaryWindow(main_window_, 'my_tasks')
+        )
 
         self.btn_dashboard = QtWidgets.QPushButton("Dashboard")
         self.btn_dashboard.setStyleSheet(css.btn_tasks)
@@ -52,12 +53,18 @@ class LeftSideBarMenuWidget(QtWidgets.QLabel):
         self.btn_dashboard.clicked.connect(
             lambda: self.highlight_button(self.btn_dashboard)
         )
+        self.btn_dashboard.clicked.connect(
+            lambda: self.toggleSecondaryWindow(main_window_, 'dashboard')
+        )
 
         self.btn_notification = QtWidgets.QPushButton("Notifications")
         self.btn_notification.setStyleSheet(css.btn_tasks)
         self.btn_notification.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
         self.btn_notification.clicked.connect(
             lambda: self.highlight_button(self.btn_notification)
+        )
+        self.btn_notification.clicked.connect(
+            lambda: self.toggleSecondaryWindow(main_window_, 'notification')
         )
 
         self.left_sidebar_buttons = [
@@ -98,6 +105,21 @@ class LeftSideBarMenuWidget(QtWidgets.QLabel):
             elif btn == button and btn.highlighted == False:
                 btn.highlighted = True
                 btn.setStyleSheet(css.btn_tasks_highlighted)
+
+    @QtCore.Slot()
+    def toggleSecondaryWindow(self, main_window_: Main_Window, target_window: str):
+        if target_window == 'my_tasks':
+            if not main_window_.tasks_window.isVisible():
+                main_window_.tasks_window.show()
+
+        if target_window == 'dashboard':
+            main_window_.tasks_window.hide()
+
+        if target_window == 'notification':
+            main_window_.tasks_window.hide()
+
+
+
 
 
 # ------------------------------------------------------------------------------------------
@@ -168,7 +190,7 @@ class PopUpAddTask(QtWidgets.QLabel):
         self.btn_close_popup.setMinimumSize(50, 30)
         self.btn_close_popup.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
         self.btn_close_popup.setStyleSheet(css.btn_close_popup)
-        self.btn_close_popup.clicked.connect(self.hide)
+        self.btn_close_popup.clicked.connect(self.close_popup)
         self.btn_close_popup.move(435, 15)
 
         self.input_task_description = QtWidgets.QLineEdit(parent=self)
@@ -201,12 +223,61 @@ class PopUpAddTask(QtWidgets.QLabel):
         self.lbl_task_urgency.setStyleSheet(css.lbl_task)
         self.lbl_task_urgency.move(250 - self.input_task_urgency.width() // 2, 305)
 
+        self.btn_add_new_task = QtWidgets.QPushButton("ADD TASK", parent=self)
+        self.btn_add_new_task.setMinimumSize(self.width()//2, 60)
+        self.btn_add_new_task.setStyleSheet(css.btn_add_task)
+        self.btn_add_new_task.move(
+            int(self.width()/2 - self.btn_add_new_task.width()/2),
+            int(self.height()-self.btn_add_new_task.height()-35),
+        )
+        self.btn_add_new_task.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+        self.btn_add_new_task.clicked.connect(
+            lambda: self.add_new_task(
+                task_description=self.input_task_description.text(),
+                task_date=self.input_task_date.text(),
+                task_urgency=self.input_task_urgency.currentText()
+            )
+        )
+
     @QtCore.Slot()
     def toggle_popup(self, main_window_: Main_Window):
         if self.isVisible() == False:
             self.show()
             self.parent_widget.adjustSize()
             self.parent_widget.update()
+
+    @QtCore.Slot()
+    def close_popup(self):
+        self.input_task_description.clear()
+        self.input_task_date.setDate(QtCore.QDate.currentDate())
+        self.hide()
+
+
+    @QtCore.Slot()
+    def add_new_task(self, task_description, task_date, task_urgency):
+        json_path = Path(__file__).parent / 'my_tasks_json/tasks.json'
+        new_task = {'description': task_description, 'date': task_date, 'urgency': task_urgency}
+
+        tasks = []
+        with open(json_path, 'r', encoding='utf8') as json_file:
+
+            try:
+                data = json.load(json_file)
+                for task in data:
+                    tasks.append(task)
+
+            except json.JSONDecodeError:
+                # If this happens, it means that your json file does not contain any data
+                ...
+
+
+        tasks.append(new_task)
+
+        with open(json_path, 'w', encoding='utf8') as json_file:
+            json.dump(tasks, json_file, indent=4)
+
+        self.btn_close_popup.click()
+
 
 
 if __name__ == "__main__":
