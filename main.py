@@ -44,7 +44,7 @@ class LeftSideBar(QtWidgets.QLabel):
             lambda: self.highlight_button(self.btn_my_tasks)
         )
         self.btn_my_tasks.clicked.connect(
-            lambda: self.toggleSecondaryWindow(main_window_, 'my_tasks')
+            lambda: self.toggleSecondaryWindow(main_window_, "my_tasks")
         )
 
         self.btn_dashboard = QtWidgets.QPushButton("Dashboard")
@@ -54,7 +54,7 @@ class LeftSideBar(QtWidgets.QLabel):
             lambda: self.highlight_button(self.btn_dashboard)
         )
         self.btn_dashboard.clicked.connect(
-            lambda: self.toggleSecondaryWindow(main_window_, 'dashboard')
+            lambda: self.toggleSecondaryWindow(main_window_, "dashboard")
         )
 
         self.btn_notification = QtWidgets.QPushButton("Notifications")
@@ -64,7 +64,7 @@ class LeftSideBar(QtWidgets.QLabel):
             lambda: self.highlight_button(self.btn_notification)
         )
         self.btn_notification.clicked.connect(
-            lambda: self.toggleSecondaryWindow(main_window_, 'notification')
+            lambda: self.toggleSecondaryWindow(main_window_, "notification")
         )
 
         self.left_sidebar_buttons = [
@@ -108,18 +108,15 @@ class LeftSideBar(QtWidgets.QLabel):
 
     @QtCore.Slot()
     def toggleSecondaryWindow(self, main_window_: Main_Window, target_window: str):
-        if target_window == 'my_tasks':
+        if target_window == "my_tasks":
             if not main_window_.tasks_window.isVisible():
                 main_window_.tasks_window.show()
 
-        if target_window == 'dashboard':
+        if target_window == "dashboard":
             main_window_.tasks_window.hide()
 
-        if target_window == 'notification':
+        if target_window == "notification":
             main_window_.tasks_window.hide()
-
-
-
 
 
 # ------------------------------------------------------------------------------------------
@@ -143,15 +140,23 @@ class MyTasksWindow(QtWidgets.QWidget):
         self.header.setStyleSheet(css.my_task_window_header)
         self.header.setMinimumSize(
             (
-                main_window_.screen_geometry.width() -
-                int(main_window_.screen_geometry.width() / 50 + main_window_.left_bar.width() + 40) -
-                40
-             ),
-            90
+                main_window_.screen_geometry.width()
+                - int(
+                    main_window_.screen_geometry.width() / 50
+                    + main_window_.left_bar.width()
+                    + 40
+                )
+                - 40
+            ),
+            90,
         )
         self.header.move(
-            int(main_window_.screen_geometry.width() / 50 + main_window_.left_bar.width() + 40),
-            50
+            int(
+                main_window_.screen_geometry.width() / 50
+                + main_window_.left_bar.width()
+                + 40
+            ),
+            50,
         )
 
         self.btn_addtask = QtWidgets.QPushButton("+  New Task", parent=self.header)
@@ -196,7 +201,9 @@ class PopUpAddTask(QtWidgets.QLabel):
         self.input_task_description = QtWidgets.QLineEdit(parent=self)
         self.input_task_description.setStyleSheet(css.task_creation_input)
         self.input_task_description.setMinimumSize(400, 40)
-        self.input_task_description.move(250 - self.input_task_description.width() // 2, 150)
+        self.input_task_description.move(
+            250 - self.input_task_description.width() // 2, 150
+        )
         self.input_task_description.setMaxLength(60)
 
         self.lbl_task_name = QtWidgets.QLabel("Task description:", parent=self)
@@ -214,7 +221,7 @@ class PopUpAddTask(QtWidgets.QLabel):
         self.lbl_task_date.move(250 - self.input_task_date.width() // 2, 210)
 
         self.input_task_urgency = QtWidgets.QComboBox(parent=self)
-        self.input_task_urgency.addItems(['Low', 'Medium', 'High'])
+        self.input_task_urgency.addItems(["Low", "Medium", "High"])
         self.input_task_urgency.setStyleSheet(css.task_creation_input)
         self.input_task_urgency.setMinimumSize(400, 40)
         self.input_task_urgency.move(250 - self.input_task_urgency.width() // 2, 335)
@@ -224,18 +231,18 @@ class PopUpAddTask(QtWidgets.QLabel):
         self.lbl_task_urgency.move(250 - self.input_task_urgency.width() // 2, 305)
 
         self.btn_add_new_task = QtWidgets.QPushButton("ADD TASK", parent=self)
-        self.btn_add_new_task.setMinimumSize(self.width()//2, 60)
+        self.btn_add_new_task.setMinimumSize(self.width() // 2, 60)
         self.btn_add_new_task.setStyleSheet(css.btn_add_task)
         self.btn_add_new_task.move(
-            int(self.width()/2 - self.btn_add_new_task.width()/2),
-            int(self.height()-self.btn_add_new_task.height()-35),
+            int(self.width() / 2 - self.btn_add_new_task.width() / 2),
+            int(self.height() - self.btn_add_new_task.height() - 35),
         )
         self.btn_add_new_task.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
         self.btn_add_new_task.clicked.connect(
             lambda: self.add_new_task(
                 task_description=self.input_task_description.text(),
                 task_date=self.input_task_date.text(),
-                task_urgency=self.input_task_urgency.currentText()
+                task_urgency=self.input_task_urgency.currentText(),
             )
         )
 
@@ -252,14 +259,17 @@ class PopUpAddTask(QtWidgets.QLabel):
         self.input_task_date.setDate(QtCore.QDate.currentDate())
         self.hide()
 
-
     @QtCore.Slot()
     def add_new_task(self, task_description, task_date, task_urgency):
-        json_path = Path(__file__).parent / 'my_tasks_json/tasks.json'
-        new_task = {'description': task_description, 'date': task_date, 'urgency': task_urgency}
+        json_path = Path(__file__).parent / "my_tasks_json/tasks.json"
+        new_task = {
+            "description": task_description,
+            "date": task_date,
+            "urgency": task_urgency,
+        }
 
         tasks = []
-        with open(json_path, 'r', encoding='utf8') as json_file:
+        with open(json_path, "r", encoding="utf8") as json_file:
 
             try:
                 data = json.load(json_file)
@@ -270,14 +280,12 @@ class PopUpAddTask(QtWidgets.QLabel):
                 # If this happens, it means that your json file does not contain any data
                 ...
 
-
         tasks.append(new_task)
 
-        with open(json_path, 'w', encoding='utf8') as json_file:
+        with open(json_path, "w", encoding="utf8") as json_file:
             json.dump(tasks, json_file, indent=4)
 
         self.btn_close_popup.click()
-
 
 
 if __name__ == "__main__":
