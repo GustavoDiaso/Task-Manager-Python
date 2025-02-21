@@ -5,6 +5,7 @@ from css import main_css as css
 import sys
 import json
 
+JSON_PATH = Path(__file__).parent / "my_tasks_json/tasks.json"
 
 class Main_Window(QtWidgets.QWidget):
     def __init__(self):
@@ -20,6 +21,7 @@ class Main_Window(QtWidgets.QWidget):
         self.tasks_window = MyTasksWindow(parent=self, main_window_=self)
 
         self.left_bar.raise_()
+
 
 
 # ------------------------------------------------------------------------------------------
@@ -123,13 +125,104 @@ class LeftSideBar(QtWidgets.QLabel):
 
 
 class MyTasksLayout(QtWidgets.QGridLayout):
-    def __init__(self, parent):
-        super(MyTasksLayout, self).__init__(parent=parent)
+    def __init__(self):
+        super().__init__()
         # setting the default configurations
         self.setSpacing(0),
         self.setContentsMargins(0, 0, 0, 0)
 
-        self.task_collection: list[QtWidgets.QLabel] = []
+        with open(JSON_PATH, 'r', encoding='utf8') as json_file:
+            try:
+                data = json.load(json_file)
+
+                row = 1
+                column = 1
+                for task in data:
+                    task_square = QtWidgets.QLabel()  # type: ignore
+                    task_square.setStyleSheet(css.task_square)
+
+                    square_description = QtWidgets.QLabel(task['description'], parent=task_square)
+                    square_description.setStyleSheet(css.square_description)
+                    square_description.move(10, 20)
+
+                    square_data = QtWidgets.QLabel(task['date'], parent=task_square)
+                    square_data.setStyleSheet(css.square_data)
+                    square_data.move(10, 40)
+
+                    square_urgency = QtWidgets.QLabel(task['urgency'], parent=task_square)
+                    square_urgency.setStyleSheet(css.square_urgency)
+                    square_urgency.move(10, 40)
+
+                    if column == 5:
+                        row += 1
+                        column = 1
+
+                    self.addWidget(task_square, row, column)
+                    column += 1
+
+            except json.JSONDecodeError:
+                # this will happen if the json_file is empty
+                print('Json_file is empty')
+
+
+    @QtCore.Slot()
+    def clear_layout(self):
+        for i in range(self.count()):
+            widget = self.itemAt(i).widget()
+            if widget is not None:
+                widget.setParent(None)
+                widget.deleteLater()
+
+
+    @QtCore.Slot()
+    def order_layout_by_urgency(self):
+        self.clear_layout()
+
+    @QtCore.Slot()
+    def order_layout_by_date(self):
+        self.clear_layout()
+
+    @QtCore.Slot()
+    def add_task(self, descripton:str, date:str, urgency:str):
+
+        task_square = QtWidgets.QLabel()  # type: ignore
+        task_square.setStyleSheet(css.task_square)
+
+        square_description = QtWidgets.QLabel(descripton, parent=task_square)
+        square_description.setStyleSheet(css.square_description)
+        square_description.move(10, 20)
+
+        square_data = QtWidgets.QLabel(date, parent=task_square)
+        square_data.setStyleSheet(css.square_data)
+        square_data.move(10, 40)
+
+        square_urgency = QtWidgets.QLabel(urgency, parent=task_square)
+        square_urgency.setStyleSheet(css.square_urgency)
+        square_urgency.move(10, 40)
+
+        if self.count() >=1:
+            last_task_position = self.getItemPosition(self.count() - 1)
+
+            last_task_line = int(f'{last_task_position}'[1])
+            last_task_colum = int(f'{last_task_position}'[4])
+
+            if last_task_colum == 4:
+                new_task_line = last_task_line + 1
+                new_task_column = 1
+            else:
+                new_task_line = last_task_line
+                new_task_column = last_task_colum + 1
+
+
+
+            self.addWidget(task_square, new_task_line, new_task_column)
+            self.invalidate()
+            self.update()
+
+        else:
+            self.addWidget(task_square, 1, 1)
+            self.invalidate()
+            self.update()
 
 
 class MyTasksWindow(QtWidgets.QWidget):
@@ -159,6 +252,8 @@ class MyTasksWindow(QtWidgets.QWidget):
             50,
         )
 
+        # __________________________________________________________
+
         self.btn_addtask = QtWidgets.QPushButton("+  New Task", parent=self.header)
         self.btn_addtask.setMinimumSize(140, 50)
         self.btn_addtask.setStyleSheet(css.btn_add_task)
@@ -174,6 +269,41 @@ class MyTasksWindow(QtWidgets.QWidget):
             lambda: self.popup_addtask.toggle_popup(main_window_)
         )
 
+        # ____________________________________________________________
+
+        self.scroll_area = QtWidgets.QScrollArea(parent=self)
+        self.scroll_area.setStyleSheet(css.scroll_area)
+        self.scroll_area.setMinimumSize(
+            self.header.width(),
+            int(main_window_.left_bar.height() - 120)
+        )
+
+        self.scroll_area.move(
+            int(
+                main_window_.screen_geometry.width() / 50
+                + main_window_.left_bar.width()
+                + 40
+            ),
+            int(self.header.height() + self.header.y() + 30)
+        )
+
+        # This div only purpose is to hold the grid with all the task squares
+        # Then, We insert this div inside the ScrollArea
+        self.div_task_layout = QtWidgets.QWidget(parent=self.scroll_area)
+        self.div_task_layout.setMinimumSize(
+            self.scroll_area.width()-20,
+            self.scroll_area.height()
+        )
+
+        self.div_task_layout.setStyleSheet(css.div_task_layout)
+
+        self.tasks_grid_layout = MyTasksLayout()
+        self.div_task_layout.setLayout(self.tasks_grid_layout)
+        self.scroll_area.setWidget(self.div_task_layout)
+
+
+
+# ______________________________________________________________________________________________________
 
 class PopUpAddTask(QtWidgets.QLabel):
     def __init__(self, parent: MyTasksWindow, main_window_: Main_Window):
@@ -181,7 +311,7 @@ class PopUpAddTask(QtWidgets.QLabel):
         self.setStyleSheet(css.popup_addtask)
         self.setMinimumSize(500, 500)
 
-        self.parent_widget: MyTasksWindow = parent
+        self.parent_widget= parent
 
         x = int(main_window_.screen_geometry.width() / 2 - (500 / 2))
         y = int(main_window_.screen_geometry.height() / 2 - (500 / 2))
@@ -243,6 +373,9 @@ class PopUpAddTask(QtWidgets.QLabel):
                 task_description=self.input_task_description.text(),
                 task_date=self.input_task_date.text(),
                 task_urgency=self.input_task_urgency.currentText(),
+                my_tasks_window=parent,
+                main_window_=main_window_
+
             )
         )
 
@@ -250,6 +383,7 @@ class PopUpAddTask(QtWidgets.QLabel):
     def toggle_popup(self, main_window_: Main_Window):
         if self.isVisible() == False:
             self.show()
+            self.raise_()
             self.parent_widget.adjustSize()
             self.parent_widget.update()
 
@@ -260,8 +394,8 @@ class PopUpAddTask(QtWidgets.QLabel):
         self.hide()
 
     @QtCore.Slot()
-    def add_new_task(self, task_description, task_date, task_urgency):
-        json_path = Path(__file__).parent / "my_tasks_json/tasks.json"
+    def add_new_task(self, task_description, task_date, task_urgency, my_tasks_window, main_window_):
+
         new_task = {
             "description": task_description,
             "date": task_date,
@@ -269,7 +403,7 @@ class PopUpAddTask(QtWidgets.QLabel):
         }
 
         tasks = []
-        with open(json_path, "r", encoding="utf8") as json_file:
+        with open(JSON_PATH, "r", encoding="utf8") as json_file:
 
             try:
                 data = json.load(json_file)
@@ -282,9 +416,11 @@ class PopUpAddTask(QtWidgets.QLabel):
 
         tasks.append(new_task)
 
-        with open(json_path, "w", encoding="utf8") as json_file:
-            json.dump(tasks, json_file, indent=4)
+        with open(JSON_PATH, "w", encoding="utf8") as json_file:
+            json.dump(tasks, json_file, indent=4, ensure_ascii=True) #type: ignore
 
+
+        my_tasks_window.tasks_grid_layout.add_task(task_description, task_date, task_urgency)
         self.btn_close_popup.click()
 
 

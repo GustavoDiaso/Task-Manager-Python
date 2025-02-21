@@ -98,3 +98,37 @@ font-weight: bold;
 font-size: 18px;
 font-family: Calibri;
 """
+
+div_task_layout = """
+
+"""
+
+scroll_area = """
+background-color: #e7e4dc;
+"""
+
+
+# here will be the css of the squares that hold the tasks
+# info inside the grid 'MyTasksLayout'
+
+
+task_square = """
+background-color: white;
+margin-left: 5px;
+margin-right: 5px;
+margin-bottom: 10px;
+
+"""
+square_description = """
+font-size: 12px;
+color: blue;
+"""
+
+square_data = """
+font-size: 10px;
+color: orange;
+"""
+square_urgency = """
+font-size: 10px;
+color: dark-green;
+"""
