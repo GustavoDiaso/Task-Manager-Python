@@ -114,14 +114,14 @@ background-color: #e7e4dc;
 
 task_square = """
 background-color: white;
-margin-left: 5px;
-margin-right: 5px;
-margin-bottom: 10px;
+margin-bottom: 8px;
+margin-right: 8px;
 
 """
 square_description = """
-font-size: 12px;
+font-size: 15px;
 color: blue;
+background-color: grey;
 """
 
 square_data = """
