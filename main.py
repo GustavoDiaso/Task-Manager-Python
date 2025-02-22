@@ -4,6 +4,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from css import main_css as css
 import sys
 import json
+import uuid
 
 JSON_PATH = Path(__file__).parent / "my_tasks_json/tasks.json"
 
@@ -128,7 +129,7 @@ class MyTasksLayout(QtWidgets.QGridLayout):
     def __init__(self):
         super().__init__()
         # setting the default configurations
-        self.setSpacing(0),
+        self.setSpacing(10),
         self.setContentsMargins(0, 0, 0, 0)
         self.setAlignment(
             QtCore.Qt.AlignmentFlag.AlignTop | QtCore.Qt.AlignmentFlag.AlignLeft
@@ -142,17 +143,20 @@ class MyTasksLayout(QtWidgets.QGridLayout):
                 column = 1
                 for task in data:
                     task_square = QtWidgets.QLabel()  # type: ignore
+                    task_square.id_ = task["id"]
                     task_square.setStyleSheet(css.task_square)
-                    task_square.setFixedSize(240, 270)
+                    task_square.setFixedSize(230, 270)
+
+                    formated_description = task["description"][:20]
+                    if len(formated_description) >= 20:
+                        formated_description += "..."
 
                     square_description = QtWidgets.QLabel(
-                        task["description"], parent=task_square
+                        formated_description, parent=task_square
                     )
                     square_description.setStyleSheet(css.square_description)
-                    square_description.setWordWrap(True)
-
                     square_description.setFixedWidth(200)
-
+                    square_description.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
                     square_description.move(
                         int(task_square.width() / 2 - square_description.width() / 2),
                         20,
@@ -200,18 +204,28 @@ class MyTasksLayout(QtWidgets.QGridLayout):
         self.clear_layout()
 
     @QtCore.Slot()
-    def add_task(self, descripton: str, date: str, urgency: str):
+    def add_task(
+        self, main_window_, parent, descripton: str, date: str, urgency: str, id_: str
+    ):
 
         task_square = QtWidgets.QLabel()  # type: ignore
+        task_square.id_ = id_
         task_square.setStyleSheet(css.task_square)
-        task_square.setFixedSize(220, 250)
+        task_square.setFixedSize(230, 270)
 
-        square_description = QtWidgets.QLabel(descripton, parent=task_square)
+        formated_description = descripton[:20]
+
+        if len(formated_description) >= 20:
+            formated_description += "..."
+
+        square_description = QtWidgets.QLabel(formated_description, parent=task_square)
         square_description.setStyleSheet(css.square_description)
+        square_description.setFixedWidth(200)
+        square_description.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         square_description.move(
-            int(task_square.width() / 2 - square_description.width() / 2), 20
+            int(task_square.width() / 2 - square_description.width() / 2),
+            20,
         )
-        square_description
 
         square_data = QtWidgets.QLabel(date, parent=task_square)
         square_data.setStyleSheet(css.square_data)
@@ -226,30 +240,31 @@ class MyTasksLayout(QtWidgets.QGridLayout):
         if self.count() >= 1:
             last_task_position = self.getItemPosition(self.count() - 1)
 
-            last_task_line = int(f"{last_task_position}"[1])
+            last_task_row = int(f"{last_task_position}"[1])
             last_task_colum = int(f"{last_task_position}"[4])
 
             if last_task_colum == 4:
-                new_task_line = last_task_line + 1
+                new_task_row = last_task_row + 1
                 new_task_column = 1
             else:
-                new_task_line = last_task_line
+                new_task_row = last_task_row
                 new_task_column = last_task_colum + 1
 
-            self.addWidget(task_square, new_task_line, new_task_column)
+            self.addWidget(task_square, new_task_row, new_task_column)
             self.invalidate()
             self.update()
+            parent.div_task_layout.adjustSize()
 
         else:
             self.addWidget(task_square, 1, 1)
             self.invalidate()
             self.update()
+            parent.div_task_layout.adjustSize()
 
 
 class MyTasksWindow(QtWidgets.QWidget):
     def __init__(self, parent, main_window_: Main_Window):
         super(MyTasksWindow, self).__init__(parent=parent)
-
         self.header = QtWidgets.QLabel(parent=self)
         self.header.setStyleSheet(css.my_task_window_header)
         self.header.setMinimumSize(
@@ -286,9 +301,7 @@ class MyTasksWindow(QtWidgets.QWidget):
 
         self.popup_addtask = PopUpAddTask(self, main_window_)
         self.popup_addtask.hide()
-        self.btn_addtask.clicked.connect(
-            lambda: self.popup_addtask.toggle_popup(main_window_)
-        )
+        self.btn_addtask.clicked.connect(lambda: self.popup_addtask.toggle_popup())
 
         # ____________________________________________________________
 
@@ -398,7 +411,7 @@ class PopUpAddTask(QtWidgets.QLabel):
         )
 
     @QtCore.Slot()
-    def toggle_popup(self, main_window_: Main_Window):
+    def toggle_popup(self):
         if self.isVisible() == False:
             self.show()
             self.raise_()
@@ -420,6 +433,7 @@ class PopUpAddTask(QtWidgets.QLabel):
             "description": task_description,
             "date": task_date,
             "urgency": task_urgency,
+            "id": str(uuid.uuid4()),
         }
 
         tasks = []
@@ -439,10 +453,50 @@ class PopUpAddTask(QtWidgets.QLabel):
         with open(JSON_PATH, "w", encoding="utf8") as json_file:
             json.dump(tasks, json_file, indent=4, ensure_ascii=True)  # type: ignore
 
+        # Add the task we just created to the grid
         my_tasks_window.tasks_grid_layout.add_task(
-            task_description, task_date, task_urgency
+            main_window_,
+            my_tasks_window,
+            new_task["description"],
+            new_task["date"],
+            new_task["urgency"],
+            new_task["id"],
         )
         self.btn_close_popup.click()
+
+
+class PopUpTaskInfo(QtWidgets.QLabel):
+    def __init__(self, parent: MyTasksWindow, main_window_: Main_Window):
+        super(PopUpTaskInfo, self).__init__(parent)
+        self.parent_widget = parent
+        self.setStyleSheet(css.popup_addtask)
+        self.setMinimumSize(500, 500)
+        x = int(main_window_.screen_geometry.width() / 2 - (500 / 2))
+        y = int(main_window_.screen_geometry.height() / 2 - (500 / 2))
+        self.move(x, y)
+
+        self.task_info_header = QtWidgets.QLabel("Task Info", parent=self)
+        self.task_info_header.setStyleSheet(css.task_info_header)
+        self.task_info_header.move(500 // 2 - self.task_info_header.width() // 2, 50)
+
+        self.btn_close_popup = QtWidgets.QPushButton("X", parent=self)
+        self.btn_close_popup.setMinimumSize(50, 30)
+        self.btn_close_popup.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+        self.btn_close_popup.setStyleSheet(css.btn_close_popup)
+        self.btn_close_popup.clicked.connect(self.close_popup)
+        self.btn_close_popup.move(435, 15)
+
+    @QtCore.Slot()
+    def toggle_popup(self):
+        if self.isVisible() == False:
+            self.show()
+            self.raise_()
+            self.parent_widget.adjustSize()
+            self.parent_widget.update()
+
+    @QtCore.Slot()
+    def close_popup(self):
+        self.hide()
 
 
 if __name__ == "__main__":

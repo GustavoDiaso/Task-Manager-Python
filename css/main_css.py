@@ -114,8 +114,7 @@ background-color: #e7e4dc;
 
 task_square = """
 background-color: white;
-margin-bottom: 8px;
-margin-right: 8px;
+border-radius: 10px;
 
 """
 square_description = """
@@ -131,4 +130,14 @@ color: orange;
 square_urgency = """
 font-size: 10px;
 color: dark-green;
+"""
+
+popup_task_desc = """
+"""
+task_info_header = """
+border: none;
+color: #595959;
+font-size: 30px;
+font-weight: bold;
+font-family: Calibri;
 """
