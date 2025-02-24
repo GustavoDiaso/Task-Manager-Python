@@ -110,24 +110,26 @@ class LeftSideBar(QtWidgets.QLabel):
                 btn.setStyleSheet(css.btn_tasks_highlighted)
 
     @QtCore.Slot()
-    def toggleSecondaryWindow(self, main_window_: Main_Window, target_window: str):
-        if target_window == "my_tasks":
-            if not main_window_.tasks_window.isVisible():
-                main_window_.tasks_window.show()
+    def toggleSecondaryWindow(self, main_window_, target_window: str):
+        try:
+            if target_window == "my_tasks":
+                if not main_window_.tasks_window.isVisible():
+                    main_window_.tasks_window.show()
 
-        if target_window == "dashboard":
-            main_window_.tasks_window.hide()
+            if target_window == "dashboard":
+                main_window_.tasks_window.hide()
 
-        if target_window == "notification":
-            main_window_.tasks_window.hide()
-
+            if target_window == "notification":
+                main_window_.tasks_window.hide()
+        except AttributeError:
+            ...
 
 # ------------------------------------------------------------------------------------------
 
 
 class MyTasksLayout(QtWidgets.QGridLayout):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, task_window_):
+        super(MyTasksLayout, self).__init__()
         # setting the default configurations
         self.setSpacing(10),
         self.setContentsMargins(0, 0, 0, 0)
@@ -145,7 +147,10 @@ class MyTasksLayout(QtWidgets.QGridLayout):
                     task_square = QtWidgets.QLabel()  # type: ignore
                     task_square.id_ = task["id"]
                     task_square.setStyleSheet(css.task_square)
-                    task_square.setFixedSize(230, 270)
+                    task_square.setFixedSize(
+                        int(task_window_.div_task_layout.width() * 1/4 - 10),
+                        300
+                    )
 
                     formated_description = task["description"][:20]
                     if len(formated_description) >= 20:
@@ -211,7 +216,10 @@ class MyTasksLayout(QtWidgets.QGridLayout):
         task_square = QtWidgets.QLabel()  # type: ignore
         task_square.id_ = id_
         task_square.setStyleSheet(css.task_square)
-        task_square.setFixedSize(230, 270)
+        task_square.setFixedSize(
+            int(main_window_.tasks_window.div_task_layout.width() * 1 / 4 - 10),
+            300
+        )
 
         formated_description = descripton[:20]
 
@@ -246,9 +254,11 @@ class MyTasksLayout(QtWidgets.QGridLayout):
             if last_task_colum == 4:
                 new_task_row = last_task_row + 1
                 new_task_column = 1
+                parent.div_task_layout.setMinimumHeight(parent.div_task_layout.height() + task_square.height())
             else:
                 new_task_row = last_task_row
                 new_task_column = last_task_colum + 1
+
 
             self.addWidget(task_square, new_task_row, new_task_column)
             self.invalidate()
@@ -329,7 +339,7 @@ class MyTasksWindow(QtWidgets.QWidget):
 
         self.div_task_layout.setStyleSheet(css.div_task_layout)
 
-        self.tasks_grid_layout = MyTasksLayout()
+        self.tasks_grid_layout = MyTasksLayout(task_window_=self)
         self.div_task_layout.setLayout(self.tasks_grid_layout)
         self.scroll_area.setWidget(self.div_task_layout)
 
