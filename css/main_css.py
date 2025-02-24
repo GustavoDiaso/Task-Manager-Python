@@ -117,20 +117,18 @@ background-color: white;
 border-radius: 10px;
 
 """
-square_description = """
-font-size: 15px;
-color: blue;
-background-color: grey;
+square_base_text = """
+font-size: 18px;
+color: #666666;
+
+"""
+square_bold_text = """
+font-size: 18px;
+font-weight: bold;
+color: #666666;
+
 """
 
-square_data = """
-font-size: 10px;
-color: orange;
-"""
-square_urgency = """
-font-size: 10px;
-color: dark-green;
-"""
 
 popup_task_desc = """
 """

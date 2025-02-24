@@ -6,6 +6,8 @@ import sys
 import json
 import uuid
 
+from css.main_css import task_square
+
 JSON_PATH = Path(__file__).parent / "my_tasks_json/tasks.json"
 
 
@@ -125,6 +127,76 @@ class LeftSideBar(QtWidgets.QLabel):
             ...
 
 # ------------------------------------------------------------------------------------------
+class TaskSquare(QtWidgets.QLabel):
+    def __init__(self, task_id, task_desciption, task_date, task_urgecy, task_window):
+        super(TaskSquare, self).__init__()
+        self.setStyleSheet(css.task_square)
+        self.id_ = task_id
+        self.setFixedSize(
+            int(task_window.div_task_layout.width() * 1 / 4 - 10),
+            300
+        )
+
+
+        lbl_description = QtWidgets.QLabel("Task preview", parent=self)
+        lbl_description.setStyleSheet(css.square_bold_text)
+        lbl_description.setFixedSize(lbl_description.width()+20, 25)
+        lbl_description.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        lbl_description.move(
+            int(self.width() / 2 - lbl_description.width() / 2),
+            70,
+        )
+        square_description = QtWidgets.QLabel(task_desciption, parent=self)
+        square_description.setStyleSheet(css.square_base_text)
+        square_description.setFixedSize(300, 25)
+        square_description.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        square_description.move(
+            int(self.width() / 2 - (square_description.width() / 2)),
+            100,
+        )
+
+
+        lbl_data = QtWidgets.QLabel("Date", parent=self)
+        lbl_data.setStyleSheet(css.square_bold_text)
+        lbl_data.setFixedSize(lbl_data.width()+20, 25)
+        lbl_data.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        lbl_data.move(
+            int(self.width() / 2 - lbl_data.width()/2),
+            140,
+        )
+        square_date = QtWidgets.QLabel(task_date, parent=self)
+        square_date.setStyleSheet(css.square_base_text)
+        square_date.setFixedSize(300, 25)
+        square_date.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        square_date.move(
+            int(self.width() / 2 - square_date.width() / 2),
+            170
+        )
+
+
+        lbl_urgency = QtWidgets.QLabel("Urgency", parent=self)
+        lbl_urgency.setStyleSheet(css.square_bold_text)
+        lbl_urgency.setFixedSize(lbl_urgency.width() + 20, 25)
+        lbl_urgency.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        lbl_urgency.move(
+            int(self.width() / 2 - lbl_urgency.width() / 2),
+            210,
+        )
+        square_urgency = QtWidgets.QLabel(task_urgecy, parent=self)
+        match square_urgency.text():
+            case 'Low':
+                square_urgency.setStyleSheet("""font-size: 18px;color: green;""")
+            case 'Medium':
+                square_urgency.setStyleSheet("""font-size: 18px;color: yellow;""")
+            case 'High':
+                square_urgency.setStyleSheet("""font-size: 18px;color: red;""")
+
+        square_urgency.setFixedSize(300, 25)
+        square_urgency.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        square_urgency.move(
+            int(self.width() / 2 - square_urgency.width() / 2),
+            240
+        )
 
 
 class MyTasksLayout(QtWidgets.QGridLayout):
@@ -144,48 +216,23 @@ class MyTasksLayout(QtWidgets.QGridLayout):
                 row = 1
                 column = 1
                 for task in data:
-                    task_square = QtWidgets.QLabel()  # type: ignore
-                    task_square.id_ = task["id"]
-                    task_square.setStyleSheet(css.task_square)
-                    task_square.setFixedSize(
-                        int(task_window_.div_task_layout.width() * 1/4 - 10),
-                        300
-                    )
-
                     formated_description = task["description"][:20]
                     if len(formated_description) >= 20:
                         formated_description += "..."
 
-                    square_description = QtWidgets.QLabel(
-                        formated_description, parent=task_square
-                    )
-                    square_description.setStyleSheet(css.square_description)
-                    square_description.setFixedWidth(200)
-                    square_description.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-                    square_description.move(
-                        int(task_square.width() / 2 - square_description.width() / 2),
-                        20,
-                    )
-
-                    square_data = QtWidgets.QLabel(task["date"], parent=task_square)
-                    square_data.setStyleSheet(css.square_data)
-                    square_data.move(
-                        int(task_square.width() / 2 - square_data.width() / 2), 40
-                    )
-
-                    square_urgency = QtWidgets.QLabel(
-                        task["urgency"], parent=task_square
-                    )
-                    square_urgency.setStyleSheet(css.square_urgency)
-                    square_urgency.move(
-                        int(task_square.width() / 2 - square_urgency.width() / 2), 70
+                    task_square_ = TaskSquare(
+                        task['id'],
+                        formated_description,
+                        task['date'],
+                        task['urgency'],
+                        task_window_
                     )
 
                     if column == 5:
                         row += 1
                         column = 1
 
-                    self.addWidget(task_square, row, column)
+                    self.addWidget(task_square_, row, column)
                     column += 1
 
             except json.JSONDecodeError:
@@ -213,60 +260,45 @@ class MyTasksLayout(QtWidgets.QGridLayout):
         self, main_window_, parent, descripton: str, date: str, urgency: str, id_: str
     ):
 
-        task_square = QtWidgets.QLabel()  # type: ignore
-        task_square.id_ = id_
-        task_square.setStyleSheet(css.task_square)
-        task_square.setFixedSize(
-            int(main_window_.tasks_window.div_task_layout.width() * 1 / 4 - 10),
-            300
-        )
-
         formated_description = descripton[:20]
 
         if len(formated_description) >= 20:
             formated_description += "..."
 
-        square_description = QtWidgets.QLabel(formated_description, parent=task_square)
-        square_description.setStyleSheet(css.square_description)
-        square_description.setFixedWidth(200)
-        square_description.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        square_description.move(
-            int(task_square.width() / 2 - square_description.width() / 2),
-            20,
-        )
-
-        square_data = QtWidgets.QLabel(date, parent=task_square)
-        square_data.setStyleSheet(css.square_data)
-        square_data.move(int(task_square.width() / 2 - square_data.width() / 2), 40)
-
-        square_urgency = QtWidgets.QLabel(urgency, parent=task_square)
-        square_urgency.setStyleSheet(css.square_urgency)
-        square_urgency.move(
-            int(task_square.width() / 2 - square_urgency.width() / 2), 70
+        task_square_ = TaskSquare(
+            task_id=id_,
+            task_desciption=formated_description,
+            task_date=date,
+            task_urgecy=urgency,
+            task_window=main_window_.tasks_window
         )
 
         if self.count() >= 1:
             last_task_position = self.getItemPosition(self.count() - 1)
+            last_task_position = last_task_position.__repr__().replace(' ','')
+            last_task_position = last_task_position.replace('(', '')
+            last_task_position = last_task_position.replace(')', '')
+            last_task_position_list = last_task_position.split(',')
+            last_task_row = int(last_task_position_list[0])
+            last_task_colum = int(last_task_position_list[1])
 
-            last_task_row = int(f"{last_task_position}"[1])
-            last_task_colum = int(f"{last_task_position}"[4])
 
             if last_task_colum == 4:
                 new_task_row = last_task_row + 1
                 new_task_column = 1
-                parent.div_task_layout.setMinimumHeight(parent.div_task_layout.height() + task_square.height())
+                parent.div_task_layout.setMinimumHeight(parent.div_task_layout.height() + task_square_.height() + 20)
             else:
                 new_task_row = last_task_row
                 new_task_column = last_task_colum + 1
 
 
-            self.addWidget(task_square, new_task_row, new_task_column)
+            self.addWidget(task_square_, new_task_row, new_task_column)
             self.invalidate()
             self.update()
             parent.div_task_layout.adjustSize()
 
         else:
-            self.addWidget(task_square, 1, 1)
+            self.addWidget(task_square_, 1, 1)
             self.invalidate()
             self.update()
             parent.div_task_layout.adjustSize()
