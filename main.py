@@ -1,4 +1,3 @@
-import os.path
 from pathlib import Path
 from PySide6 import QtWidgets, QtCore, QtGui
 from css import main_css as css
@@ -6,10 +5,8 @@ import sys
 import json
 import uuid
 
-from css.main_css import task_square
 
 JSON_PATH = Path(__file__).parent / "my_tasks_json/tasks.json"
-
 
 class Main_Window(QtWidgets.QWidget):
     def __init__(self):
@@ -23,7 +20,6 @@ class Main_Window(QtWidgets.QWidget):
         self.left_bar.btn_my_tasks.click()
 
         self.tasks_window = MyTasksWindow(parent=self, main_window_=self)
-
         self.left_bar.raise_()
 
 
@@ -135,6 +131,20 @@ class TaskSquare(QtWidgets.QLabel):
         self.setFixedSize(
             int(task_window.div_task_layout.width() * 1 / 4 - 10),
             300
+        )
+
+        colored_task_header = QtWidgets.QLabel(parent=self)
+        colored_task_header.setFixedSize(self.width(), 50)
+        colored_task_header.setStyleSheet(css.task_colored_header)
+        colored_task_header.move(0,0)
+
+        btn_delete_task = QtWidgets.QPushButton(parent=colored_task_header)
+        btn_delete_task.setIcon(QtGui.QIcon(str(Path(__file__).parent / 'icons/lixeira.png')))
+        btn_delete_task.setStyleSheet(css.btn_delete_task)
+        btn_delete_task.setFixedSize(60,60)
+        btn_delete_task.move(
+            int(colored_task_header.width()-btn_delete_task.width()-20),
+            int(colored_task_header.height()/2 - btn_delete_task.height()/2)
         )
 
 
@@ -275,9 +285,13 @@ class MyTasksLayout(QtWidgets.QGridLayout):
 
         if self.count() >= 1:
             last_task_position = self.getItemPosition(self.count() - 1)
-            last_task_position = last_task_position.__repr__().replace(' ','')
-            last_task_position = last_task_position.replace('(', '')
-            last_task_position = last_task_position.replace(')', '')
+            last_task_position = (
+                str(last_task_position)
+                .replace(' ','')
+                .replace('(', '')
+                .replace(')', '')
+            )
+
             last_task_position_list = last_task_position.split(',')
             last_task_row = int(last_task_position_list[0])
             last_task_colum = int(last_task_position_list[1])

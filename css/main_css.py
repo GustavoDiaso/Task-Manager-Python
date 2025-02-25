@@ -117,6 +117,19 @@ background-color: white;
 border-radius: 10px;
 
 """
+
+task_colored_header = """
+background-color:#ccff95;
+border-top-left-radius: 10px;
+border-top-right-radius: 10px;
+border-bottom-left-radius: 0px;
+border-bottom-right-radius: 0px;
+"""
+
+btn_delete_task = """
+background-color: blue;
+"""
+
 square_base_text = """
 font-size: 18px;
 color: #666666;
@@ -128,8 +141,6 @@ font-weight: bold;
 color: #666666;
 
 """
-
-
 popup_task_desc = """
 """
 task_info_header = """
