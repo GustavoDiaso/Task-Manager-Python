@@ -139,12 +139,25 @@ class TaskSquare(QtWidgets.QLabel):
         colored_task_header.move(0,0)
 
         btn_delete_task = QtWidgets.QPushButton(parent=colored_task_header)
-        btn_delete_task.setIcon(QtGui.QIcon(str(Path(__file__).parent / 'icons/lixeira.png')))
+        btn_delete_task.setIcon(QtGui.QIcon(str(Path(__file__).parent / 'icons/x.png')))
+        btn_delete_task.setIconSize(QtCore.QSize(15,15))
         btn_delete_task.setStyleSheet(css.btn_delete_task)
-        btn_delete_task.setFixedSize(60,60)
+        btn_delete_task.setFixedSize(34,34)
+        btn_delete_task.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
         btn_delete_task.move(
-            int(colored_task_header.width()-btn_delete_task.width()-20),
+            int(colored_task_header.width()-btn_delete_task.width()-5),
             int(colored_task_header.height()/2 - btn_delete_task.height()/2)
+        )
+
+        btn_lookup_task = QtWidgets.QPushButton(parent=colored_task_header)
+        btn_lookup_task.setIcon(QtGui.QIcon(str(Path(__file__).parent / 'icons/olho.png')))
+        btn_lookup_task.setIconSize(QtCore.QSize(30,30))
+        btn_lookup_task.setStyleSheet(css.btn_delete_task)
+        btn_lookup_task.setFixedSize(34,34)
+        btn_lookup_task.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+        btn_lookup_task.move(
+            8,
+            int(colored_task_header.height()/2 - btn_lookup_task.height()/2)
         )
 
 

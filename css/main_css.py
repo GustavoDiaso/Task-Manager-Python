@@ -127,16 +127,18 @@ border-bottom-right-radius: 0px;
 """
 
 btn_delete_task = """
-background-color: blue;
+
+border-radius:none;
 """
 
 square_base_text = """
-font-size: 18px;
+font-size: 19px;
+font-weight: semi-bold;
 color: #666666;
 
 """
 square_bold_text = """
-font-size: 18px;
+font-size: 19px;
 font-weight: bold;
 color: #666666;
 
