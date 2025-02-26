@@ -8,6 +8,21 @@ import uuid
 
 JSON_PATH = Path(__file__).parent / "my_tasks_json/tasks.json"
 
+def get_tasks() -> list:
+    """returns the current tasks present in the json database"""
+    tasks = []
+    with open(JSON_PATH, 'r', encoding='utf8') as json_file:
+        data = json.load(json_file)
+        try:
+            for task in data:
+                tasks.append(task)
+
+        except json.JSONDecodeError:
+            # If this happens, it means that your json file does not contain any data
+            return []
+
+    return tasks
+
 class Main_Window(QtWidgets.QWidget):
     def __init__(self):
         super(Main_Window, self).__init__()
@@ -148,6 +163,7 @@ class TaskSquare(QtWidgets.QLabel):
             int(colored_task_header.width()-btn_delete_task.width()-5),
             int(colored_task_header.height()/2 - btn_delete_task.height()/2)
         )
+        btn_delete_task.clicked.connect(lambda: self.remove_task(task_id, task_window))
 
         btn_lookup_task = QtWidgets.QPushButton(parent=colored_task_header)
         btn_lookup_task.setIcon(QtGui.QIcon(str(Path(__file__).parent / 'icons/olho.png')))
@@ -220,6 +236,21 @@ class TaskSquare(QtWidgets.QLabel):
             int(self.width() / 2 - square_urgency.width() / 2),
             240
         )
+
+    @QtCore.Slot()
+    def remove_task(self, task_id, task_window):
+        current_taks = get_tasks()
+        new_tasks = []
+        if len(current_taks) > 0:
+            for task in current_taks:
+                if task['id'] != task_id:
+                    new_tasks.append(task)
+
+        with open(JSON_PATH, 'w', encoding='utf8') as json_file:
+            json.dump(new_tasks, json_file, indent=4, ensure_ascii=True) #type: ignore
+
+        task_window.tasks_grid_layout.remove_task_from_layout(task_id, task_window)
+
 
 
 class MyTasksLayout(QtWidgets.QGridLayout):
@@ -329,6 +360,36 @@ class MyTasksLayout(QtWidgets.QGridLayout):
             self.invalidate()
             self.update()
             parent.div_task_layout.adjustSize()
+
+
+    @QtCore.Slot()
+    def remove_task_from_layout(self, task_id, task_window):
+        last_task_position = self.getItemPosition(self.count() - 1)
+        last_task_position = (
+            str(last_task_position)
+            .replace(' ', '')
+            .replace('(', '')
+            .replace(')', '')
+        )
+
+        last_task_position_list = last_task_position.split(',')
+        last_task_row = int(last_task_position_list[0])
+
+        task_to_delete = None
+        for row in range(1, last_task_row+1):
+            for column in range(1, 5):
+                # widget: TaskSquare
+                if self.itemAtPosition(row, column) is not None:
+                    widget = self.itemAtPosition(row, column).widget()
+                    if getattr(widget, 'id_', None) == task_id:
+                        task_to_delete = widget
+
+        if task_to_delete is not None:
+            self.removeWidget(task_to_delete)
+            task_to_delete.deleteLater()
+            self.invalidate()
+            self.update()
+            task_window.div_task_layout.adjustSize()
 
 
 class MyTasksWindow(QtWidgets.QWidget):
@@ -505,18 +566,7 @@ class PopUpAddTask(QtWidgets.QLabel):
             "id": str(uuid.uuid4()),
         }
 
-        tasks = []
-        with open(JSON_PATH, "r", encoding="utf8") as json_file:
-
-            try:
-                data = json.load(json_file)
-                for task in data:
-                    tasks.append(task)
-
-            except json.JSONDecodeError:
-                # If this happens, it means that your json file does not contain any data
-                ...
-
+        tasks = get_tasks()
         tasks.append(new_task)
 
         with open(JSON_PATH, "w", encoding="utf8") as json_file:
