@@ -8,10 +8,11 @@ import uuid
 
 JSON_PATH = Path(__file__).parent / "my_tasks_json/tasks.json"
 
+
 def get_tasks() -> list:
     """returns the current tasks present in the json database"""
     tasks = []
-    with open(JSON_PATH, 'r', encoding='utf8') as json_file:
+    with open(JSON_PATH, "r", encoding="utf8") as json_file:
         data = json.load(json_file)
         try:
             for task in data:
@@ -22,6 +23,7 @@ def get_tasks() -> list:
             return []
 
     return tasks
+
 
 class Main_Window(QtWidgets.QWidget):
     def __init__(self):
@@ -137,49 +139,49 @@ class LeftSideBar(QtWidgets.QLabel):
         except AttributeError:
             ...
 
+
 # ------------------------------------------------------------------------------------------
 class TaskSquare(QtWidgets.QLabel):
     def __init__(self, task_id, task_desciption, task_date, task_urgecy, task_window):
         super(TaskSquare, self).__init__()
         self.setStyleSheet(css.task_square)
         self.id_ = task_id
-        self.setFixedSize(
-            int(task_window.div_task_layout.width() * 1 / 4 - 10),
-            300
-        )
+        self.width_ = int(task_window.div_task_layout.width() * 1 / 4 - 10)
+        self.height_ = 300
+        self.setFixedSize(self.width_, self.height_)
 
         colored_task_header = QtWidgets.QLabel(parent=self)
         colored_task_header.setFixedSize(self.width(), 50)
         colored_task_header.setStyleSheet(css.task_colored_header)
-        colored_task_header.move(0,0)
+        colored_task_header.move(0, 0)
 
         btn_delete_task = QtWidgets.QPushButton(parent=colored_task_header)
-        btn_delete_task.setIcon(QtGui.QIcon(str(Path(__file__).parent / 'icons/x.png')))
-        btn_delete_task.setIconSize(QtCore.QSize(15,15))
+        btn_delete_task.setIcon(QtGui.QIcon(str(Path(__file__).parent / "icons/x.png")))
+        btn_delete_task.setIconSize(QtCore.QSize(15, 15))
         btn_delete_task.setStyleSheet(css.btn_delete_task)
-        btn_delete_task.setFixedSize(34,34)
+        btn_delete_task.setFixedSize(34, 34)
         btn_delete_task.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
         btn_delete_task.move(
-            int(colored_task_header.width()-btn_delete_task.width()-5),
-            int(colored_task_header.height()/2 - btn_delete_task.height()/2)
+            int(colored_task_header.width() - btn_delete_task.width() - 5),
+            int(colored_task_header.height() / 2 - btn_delete_task.height() / 2),
         )
         btn_delete_task.clicked.connect(lambda: self.remove_task(task_id, task_window))
 
         btn_lookup_task = QtWidgets.QPushButton(parent=colored_task_header)
-        btn_lookup_task.setIcon(QtGui.QIcon(str(Path(__file__).parent / 'icons/olho.png')))
-        btn_lookup_task.setIconSize(QtCore.QSize(30,30))
+        btn_lookup_task.setIcon(
+            QtGui.QIcon(str(Path(__file__).parent / "icons/olho.png"))
+        )
+        btn_lookup_task.setIconSize(QtCore.QSize(30, 30))
         btn_lookup_task.setStyleSheet(css.btn_delete_task)
-        btn_lookup_task.setFixedSize(34,34)
+        btn_lookup_task.setFixedSize(34, 34)
         btn_lookup_task.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
         btn_lookup_task.move(
-            8,
-            int(colored_task_header.height()/2 - btn_lookup_task.height()/2)
+            8, int(colored_task_header.height() / 2 - btn_lookup_task.height() / 2)
         )
-
 
         lbl_description = QtWidgets.QLabel("Task preview", parent=self)
         lbl_description.setStyleSheet(css.square_bold_text)
-        lbl_description.setFixedSize(lbl_description.width()+20, 25)
+        lbl_description.setFixedSize(lbl_description.width() + 20, 25)
         lbl_description.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         lbl_description.move(
             int(self.width() / 2 - lbl_description.width() / 2),
@@ -194,24 +196,19 @@ class TaskSquare(QtWidgets.QLabel):
             100,
         )
 
-
         lbl_data = QtWidgets.QLabel("Date", parent=self)
         lbl_data.setStyleSheet(css.square_bold_text)
-        lbl_data.setFixedSize(lbl_data.width()+20, 25)
+        lbl_data.setFixedSize(lbl_data.width() + 20, 25)
         lbl_data.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         lbl_data.move(
-            int(self.width() / 2 - lbl_data.width()/2),
+            int(self.width() / 2 - lbl_data.width() / 2),
             140,
         )
         square_date = QtWidgets.QLabel(task_date, parent=self)
         square_date.setStyleSheet(css.square_base_text)
         square_date.setFixedSize(300, 25)
         square_date.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        square_date.move(
-            int(self.width() / 2 - square_date.width() / 2),
-            170
-        )
-
+        square_date.move(int(self.width() / 2 - square_date.width() / 2), 170)
 
         lbl_urgency = QtWidgets.QLabel("Urgency", parent=self)
         lbl_urgency.setStyleSheet(css.square_bold_text)
@@ -223,19 +220,16 @@ class TaskSquare(QtWidgets.QLabel):
         )
         square_urgency = QtWidgets.QLabel(task_urgecy, parent=self)
         match square_urgency.text():
-            case 'Low':
+            case "Low":
                 square_urgency.setStyleSheet("""font-size: 18px;color: green;""")
-            case 'Medium':
+            case "Medium":
                 square_urgency.setStyleSheet("""font-size: 18px;color: yellow;""")
-            case 'High':
+            case "High":
                 square_urgency.setStyleSheet("""font-size: 18px;color: red;""")
 
         square_urgency.setFixedSize(300, 25)
         square_urgency.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        square_urgency.move(
-            int(self.width() / 2 - square_urgency.width() / 2),
-            240
-        )
+        square_urgency.move(int(self.width() / 2 - square_urgency.width() / 2), 240)
 
     @QtCore.Slot()
     def remove_task(self, task_id, task_window):
@@ -243,19 +237,19 @@ class TaskSquare(QtWidgets.QLabel):
         new_tasks = []
         if len(current_taks) > 0:
             for task in current_taks:
-                if task['id'] != task_id:
+                if task["id"] != task_id:
                     new_tasks.append(task)
 
-        with open(JSON_PATH, 'w', encoding='utf8') as json_file:
-            json.dump(new_tasks, json_file, indent=4, ensure_ascii=True) #type: ignore
+        with open(JSON_PATH, "w", encoding="utf8") as json_file:
+            json.dump(new_tasks, json_file, indent=4, ensure_ascii=True)  # type: ignore
 
-        task_window.tasks_grid_layout.remove_task_from_layout(task_id, task_window)
-
+        task_window.tasks_grid_layout.update_layout()
 
 
 class MyTasksLayout(QtWidgets.QGridLayout):
     def __init__(self, task_window_):
         super(MyTasksLayout, self).__init__()
+        self.parent_ = task_window_
         # setting the default configurations
         self.setSpacing(10),
         self.setContentsMargins(0, 0, 0, 0)
@@ -275,11 +269,11 @@ class MyTasksLayout(QtWidgets.QGridLayout):
                         formated_description += "..."
 
                     task_square_ = TaskSquare(
-                        task['id'],
+                        task["id"],
                         formated_description,
-                        task['date'],
-                        task['urgency'],
-                        task_window_
+                        task["date"],
+                        task["urgency"],
+                        task_window_,
                     )
 
                     if column == 5:
@@ -294,12 +288,33 @@ class MyTasksLayout(QtWidgets.QGridLayout):
                 print("Json_file is empty")
 
     @QtCore.Slot()
+    def get_last_task_position(self) -> list[int] | None:
+        # if there are no tasks, there is no last task position
+        if self.count() == 0:
+            return None
+
+        last_task_position = self.getItemPosition(self.count() - 1)
+
+        last_task_position = (
+            str(last_task_position).replace(" ", "").replace("(", "").replace(")", "")
+        )
+
+        last_task_position_list = last_task_position.split(",")
+        return [int(last_task_position_list[0]), int(last_task_position_list[1])]
+
+    @QtCore.Slot()
     def clear_layout(self):
-        for i in range(self.count()):
-            widget = self.itemAt(i).widget()
-            if widget is not None:
-                widget.setParent(None)
-                widget.deleteLater()
+
+        last_task_position = self.get_last_task_position()
+
+        if last_task_position is not None:
+            for row in range(1, last_task_position[0] + 1):
+                for column in range(1, 5):
+                    # widget: TaskSquare
+                    if self.itemAtPosition(row, column) is not None:
+                        widget = self.itemAtPosition(row, column).widget()
+                        widget.setParent(None)
+                        widget.deleteLater()
 
     @QtCore.Slot()
     def order_layout_by_urgency(self):
@@ -310,86 +325,46 @@ class MyTasksLayout(QtWidgets.QGridLayout):
         self.clear_layout()
 
     @QtCore.Slot()
-    def add_task(
-        self, main_window_, parent, descripton: str, date: str, urgency: str, id_: str
-    ):
+    def update_layout(self):
+        self.clear_layout()
 
-        formated_description = descripton[:20]
+        with open(JSON_PATH, "r", encoding="utf8") as json_file:
+            try:
+                data = json.load(json_file)
 
-        if len(formated_description) >= 20:
-            formated_description += "..."
+                row = 1
+                column = 1
+                for task in data:
+                    formated_description = task["description"][:20]
+                    if len(formated_description) >= 20:
+                        formated_description += "..."
 
-        task_square_ = TaskSquare(
-            task_id=id_,
-            task_desciption=formated_description,
-            task_date=date,
-            task_urgecy=urgency,
-            task_window=main_window_.tasks_window
-        )
+                    task_square_ = TaskSquare(
+                        task["id"],
+                        formated_description,
+                        task["date"],
+                        task["urgency"],
+                        self.parent_,
+                    )
 
-        if self.count() >= 1:
-            last_task_position = self.getItemPosition(self.count() - 1)
-            last_task_position = (
-                str(last_task_position)
-                .replace(' ','')
-                .replace('(', '')
-                .replace(')', '')
-            )
+                    if column == 5:
+                        row += 1
+                        column = 1
 
-            last_task_position_list = last_task_position.split(',')
-            last_task_row = int(last_task_position_list[0])
-            last_task_colum = int(last_task_position_list[1])
+                    self.addWidget(task_square_, row, column)
+                    column += 1
 
+            except json.JSONDecodeError:
+                # this will happen if the json_file is empty
+                print("Json_file is empty")
 
-            if last_task_colum == 4:
-                new_task_row = last_task_row + 1
-                new_task_column = 1
-                parent.div_task_layout.setMinimumHeight(parent.div_task_layout.height() + task_square_.height() + 20)
-            else:
-                new_task_row = last_task_row
-                new_task_column = last_task_colum + 1
+        self.update()
+        self.invalidate()
 
-
-            self.addWidget(task_square_, new_task_row, new_task_column)
-            self.invalidate()
-            self.update()
-            parent.div_task_layout.adjustSize()
-
-        else:
-            self.addWidget(task_square_, 1, 1)
-            self.invalidate()
-            self.update()
-            parent.div_task_layout.adjustSize()
-
-
-    @QtCore.Slot()
-    def remove_task_from_layout(self, task_id, task_window):
-        last_task_position = self.getItemPosition(self.count() - 1)
-        last_task_position = (
-            str(last_task_position)
-            .replace(' ', '')
-            .replace('(', '')
-            .replace(')', '')
-        )
-
-        last_task_position_list = last_task_position.split(',')
-        last_task_row = int(last_task_position_list[0])
-
-        task_to_delete = None
-        for row in range(1, last_task_row+1):
-            for column in range(1, 5):
-                # widget: TaskSquare
-                if self.itemAtPosition(row, column) is not None:
-                    widget = self.itemAtPosition(row, column).widget()
-                    if getattr(widget, 'id_', None) == task_id:
-                        task_to_delete = widget
-
-        if task_to_delete is not None:
-            self.removeWidget(task_to_delete)
-            task_to_delete.deleteLater()
-            self.invalidate()
-            self.update()
-            task_window.div_task_layout.adjustSize()
+        last_task_position = self.get_last_task_position()
+        if last_task_position is not None:
+            self.parent_.div_task_layout.setFixedHeight(last_task_position[0] * 320)
+        self.parent_.div_task_layout.updateGeometry()
 
 
 class MyTasksWindow(QtWidgets.QWidget):
@@ -535,7 +510,7 @@ class PopUpAddTask(QtWidgets.QLabel):
                 task_description=self.input_task_description.text(),
                 task_date=self.input_task_date.text(),
                 task_urgency=self.input_task_urgency.currentText(),
-                my_tasks_window=parent,
+                tasks_window=parent,
                 main_window_=main_window_,
             )
         )
@@ -556,7 +531,7 @@ class PopUpAddTask(QtWidgets.QLabel):
 
     @QtCore.Slot()
     def add_new_task(
-        self, task_description, task_date, task_urgency, my_tasks_window, main_window_
+        self, task_description, task_date, task_urgency, tasks_window, main_window_
     ):
 
         new_task = {
@@ -573,14 +548,7 @@ class PopUpAddTask(QtWidgets.QLabel):
             json.dump(tasks, json_file, indent=4, ensure_ascii=True)  # type: ignore
 
         # Add the task we just created to the grid
-        my_tasks_window.tasks_grid_layout.add_task(
-            main_window_,
-            my_tasks_window,
-            new_task["description"],
-            new_task["date"],
-            new_task["urgency"],
-            new_task["id"],
-        )
+        tasks_window.tasks_grid_layout.update_layout()
         self.btn_close_popup.click()
 
 
