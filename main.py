@@ -178,6 +178,11 @@ class TaskSquare(QtWidgets.QLabel):
         btn_lookup_task.move(
             8, int(colored_task_header.height() / 2 - btn_lookup_task.height() / 2)
         )
+        popup_task_info = PopUpTaskInfo(
+            parent=task_window, main_window_=task_window.parent(), task_id=self.id_
+        )
+        popup_task_info.setVisible(False)
+        btn_lookup_task.clicked.connect(lambda: popup_task_info.toggle_popup())
 
         lbl_description = QtWidgets.QLabel("Task preview", parent=self)
         lbl_description.setStyleSheet(css.square_bold_text)
@@ -187,6 +192,7 @@ class TaskSquare(QtWidgets.QLabel):
             int(self.width() / 2 - lbl_description.width() / 2),
             70,
         )
+
         square_description = QtWidgets.QLabel(task_desciption, parent=self)
         square_description.setStyleSheet(css.square_base_text)
         square_description.setFixedSize(300, 25)
@@ -471,7 +477,7 @@ class PopUpAddTask(QtWidgets.QLabel):
         self.input_task_description.move(
             250 - self.input_task_description.width() // 2, 150
         )
-        self.input_task_description.setMaxLength(60)
+        self.input_task_description.setMaxLength(200)
 
         self.lbl_task_name = QtWidgets.QLabel("Task description:", parent=self)
         self.lbl_task_name.setStyleSheet(css.lbl_task)
@@ -553,7 +559,7 @@ class PopUpAddTask(QtWidgets.QLabel):
 
 
 class PopUpTaskInfo(QtWidgets.QLabel):
-    def __init__(self, parent: MyTasksWindow, main_window_: Main_Window):
+    def __init__(self, parent: MyTasksWindow, main_window_: Main_Window, task_id):
         super(PopUpTaskInfo, self).__init__(parent)
         self.parent_widget = parent
         self.setStyleSheet(css.popup_addtask)
@@ -561,6 +567,7 @@ class PopUpTaskInfo(QtWidgets.QLabel):
         x = int(main_window_.screen_geometry.width() / 2 - (500 / 2))
         y = int(main_window_.screen_geometry.height() / 2 - (500 / 2))
         self.move(x, y)
+        margin_left = self.width() // 2 - 170
 
         self.task_info_header = QtWidgets.QLabel("Task Info", parent=self)
         self.task_info_header.setStyleSheet(css.task_info_header)
@@ -572,6 +579,66 @@ class PopUpTaskInfo(QtWidgets.QLabel):
         self.btn_close_popup.setStyleSheet(css.btn_close_popup)
         self.btn_close_popup.clicked.connect(self.close_popup)
         self.btn_close_popup.move(435, 15)
+
+        self.task_description_guide = QtWidgets.QLabel("Task description:", parent=self)
+        self.task_description_guide.setStyleSheet(css.info_labels_guide)
+        self.task_description_guide.move(margin_left - 10, 120)
+        self.lbl_task_description = QtWidgets.QLabel(parent=self)
+        self.lbl_task_description.setStyleSheet(css.info_labels)
+        self.lbl_task_description.setFixedSize(340, 100)
+        self.lbl_task_description.setWordWrap(True)
+        self.lbl_task_description.move(margin_left, 150)
+
+        self.task_date_guide = QtWidgets.QLabel("Task date:", parent=self)
+        self.task_date_guide.setStyleSheet(css.info_labels_guide)
+        self.task_date_guide.move(
+            margin_left - 10, int(150 + self.lbl_task_description.height() + 20)
+        )
+        self.lbl_task_date = QtWidgets.QLabel(parent=self)
+        self.lbl_task_date.setStyleSheet(css.info_labels)
+        self.lbl_task_date.setFixedSize(100, 30)
+        self.lbl_task_date.move(
+            margin_left, int(150 + self.lbl_task_description.height() + 50)
+        )
+
+        self.task_urgency_guide = QtWidgets.QLabel("Task urgency:", parent=self)
+        self.task_urgency_guide.setStyleSheet(css.info_labels_guide)
+        self.task_urgency_guide.move(
+            margin_left - 10,
+            int(
+                150
+                + self.lbl_task_description.height()
+                + 60
+                + self.lbl_task_date.height()
+                + 20
+            ),
+        )
+
+        self.lbl_task_urgency = QtWidgets.QLabel(parent=self)
+        self.lbl_task_urgency.setStyleSheet(css.info_labels)
+        self.lbl_task_urgency.setFixedSize(100, 30)
+        self.lbl_task_urgency.move(
+            margin_left,
+            int(
+                150
+                + self.lbl_task_description.height()
+                + 60
+                + self.lbl_task_date.height()
+                + 50
+            ),
+        )
+
+        with open(JSON_PATH, "r", encoding="utf8") as json_file:
+            data = json.load(json_file)
+            try:
+                for task in data:
+                    if task["id"] == task_id:
+                        self.lbl_task_description.setText(task["description"])
+                        self.lbl_task_date.setText(task["date"])
+                        self.lbl_task_urgency.setText(task["urgency"])
+
+            except json.JSONDecodeError:
+                print("Your json file is empty")
 
     @QtCore.Slot()
     def toggle_popup(self):

@@ -152,3 +152,24 @@ font-size: 30px;
 font-weight: bold;
 font-family: Calibri;
 """
+# This css is dedicated to the PopUpTaskInfo
+info_labels_guide = """
+border: none;
+border-radius: 5px;
+padding-left: 10px;
+color: #666666 ;
+font-weight: bold;
+font-size: 18px;
+font-family: Calibri;
+"""
+
+info_labels = """
+background-color: #eaeaea;
+border: none;
+border-radius: 5px;
+padding-left: 10px;
+color: #666666 ;
+font-weight: bold;
+font-size: 15px;
+font-family: Calibri;
+"""
