@@ -1,8 +1,8 @@
 main_window = """
 background-color: #f0ede5; 
-
-
 """
+
+# Left Side Bar Widgets css
 left_side_bar = """
 background-color: white;
 border-radius: 20px;
@@ -11,6 +11,7 @@ border-radius: 20px;
 div_btn_menu = """
 background-color: blue;
 """
+
 
 btn_tasks = """
 background-color: white;
@@ -167,7 +168,7 @@ info_labels = """
 background-color: #eaeaea;
 border: none;
 border-radius: 5px;
-padding-left: 10px;
+padding: 10px;
 color: #666666 ;
 font-weight: bold;
 font-size: 15px;

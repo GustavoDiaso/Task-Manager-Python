@@ -52,8 +52,16 @@ class LeftSideBar(QtWidgets.QLabel):
             int(main_window_.screen_geometry.width() / 50),
             int(main_window_.screen_geometry.height() / 2 - height_ / 2),
         )
-
         # Creating the buttons from de leftsidebar
+
+        self.profile_image = QtWidgets.QLabel(parent=self)
+        self.profile_image.setPixmap(
+            QtGui.QPixmap(Path(__file__).parent / "image/gustachad.png").scaled(60, 60)
+        )
+        self.profile_image.setFixedSize(60, 60)
+        self.profile_image.move(
+            int(self.width() / 2 - self.profile_image.width() / 2), 15
+        )
 
         self.btn_my_tasks = QtWidgets.QPushButton("My Tasks")
         self.btn_my_tasks.setStyleSheet(css.btn_tasks)
@@ -567,7 +575,7 @@ class PopUpTaskInfo(QtWidgets.QLabel):
         x = int(main_window_.screen_geometry.width() / 2 - (500 / 2))
         y = int(main_window_.screen_geometry.height() / 2 - (500 / 2))
         self.move(x, y)
-        margin_left = self.width() // 2 - 170
+        margin_left = self.width() // 2 - 190
 
         self.task_info_header = QtWidgets.QLabel("Task Info", parent=self)
         self.task_info_header.setStyleSheet(css.task_info_header)
@@ -585,9 +593,12 @@ class PopUpTaskInfo(QtWidgets.QLabel):
         self.task_description_guide.move(margin_left - 10, 120)
         self.lbl_task_description = QtWidgets.QLabel(parent=self)
         self.lbl_task_description.setStyleSheet(css.info_labels)
-        self.lbl_task_description.setFixedSize(340, 100)
+        self.lbl_task_description.setFixedSize(380, 100)
         self.lbl_task_description.setWordWrap(True)
         self.lbl_task_description.move(margin_left, 150)
+        self.lbl_task_description.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignTop
+        )
 
         self.task_date_guide = QtWidgets.QLabel("Task date:", parent=self)
         self.task_date_guide.setStyleSheet(css.info_labels_guide)
@@ -596,7 +607,7 @@ class PopUpTaskInfo(QtWidgets.QLabel):
         )
         self.lbl_task_date = QtWidgets.QLabel(parent=self)
         self.lbl_task_date.setStyleSheet(css.info_labels)
-        self.lbl_task_date.setFixedSize(100, 30)
+        self.lbl_task_date.setFixedSize(380, 30)
         self.lbl_task_date.move(
             margin_left, int(150 + self.lbl_task_description.height() + 50)
         )
@@ -616,7 +627,7 @@ class PopUpTaskInfo(QtWidgets.QLabel):
 
         self.lbl_task_urgency = QtWidgets.QLabel(parent=self)
         self.lbl_task_urgency.setStyleSheet(css.info_labels)
-        self.lbl_task_urgency.setFixedSize(100, 30)
+        self.lbl_task_urgency.setFixedSize(380, 30)
         self.lbl_task_urgency.move(
             margin_left,
             int(
