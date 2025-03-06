@@ -60,7 +60,7 @@ class LeftSideBar(QtWidgets.QLabel):
         )
         self.profile_image.setFixedSize(60, 60)
         self.profile_image.move(
-            int(self.width() / 2 - self.profile_image.width() / 2), 15
+            int(self.width() / 2 - self.profile_image.width() / 2), 20
         )
 
         self.btn_my_tasks = QtWidgets.QPushButton("My Tasks")
